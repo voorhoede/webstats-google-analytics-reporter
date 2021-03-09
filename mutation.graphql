@@ -1,0 +1,15 @@
+mutation createGoogleAnalyticsStatistic(
+  $projectId: String!,
+  $gitCommitSha: String,
+  $branch: String,
+  $data: JSONObject!
+  ) {
+  createGoogleAnalyticsStatistic(
+    projectId: $projectId
+    gitCommitSha: $gitCommitSha
+    branch: $branch
+    data: $data
+    ) {
+    id
+  }
+}

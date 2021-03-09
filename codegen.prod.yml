@@ -1,0 +1,12 @@
+overwrite: true
+schema: "https://webstats.vercel.app/api/graphql"
+documents: '**/*.graphql'
+generates:
+  generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"

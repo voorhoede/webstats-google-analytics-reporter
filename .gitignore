@@ -1,0 +1,5 @@
+node_modules
+generated/
+graphql.schema.json
+.env
+.DS_Store

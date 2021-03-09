@@ -1,0 +1,6 @@
+name: Webstats Google Analytics Reporter
+author: De Voorhoede
+description: Post google analytics report to webstats
+runs:
+  using: node12
+  main: 'dist/index.js'
