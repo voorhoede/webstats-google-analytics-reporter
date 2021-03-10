@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { info, setFailed } from '@actions/core';
 import { initWebstatsGraphqlClient } from 'webstats-reporters-utils';
 import { getSdk } from '../generated/graphql';
 import { google } from 'googleapis';
@@ -43,9 +44,18 @@ const client = initWebstatsGraphqlClient();
 const webstatsSdk = getSdk(client);
 
 async function main(): Promise<void> {
-  const data = await getGoogleAnalyticsData();
-  const transformedData = transformData(data);
-  await createGoogleAnalyticsStatistic(transformedData);
+  try {
+    info('Fetching data from Google Analytics');
+    const data = await getGoogleAnalyticsData();
+
+    info('Transforming Google Analytics data');
+    const transformedData = transformData(data);
+
+    info('Posting Google Analytics data to Webstats');
+    await createGoogleAnalyticsStatistic(transformedData);
+  } catch(e) {
+    setFailed(e.message);
+  }
 }
 
 main();
@@ -107,40 +117,36 @@ const body = {
 };
 
 async function getGoogleAnalyticsData(): Promise<any> {
-  try {
-    const token = await new Promise((resolve, reject) =>
-      jwt.authorize(async (error, tokens) => {
-        if (error) {
-          reject(new Error('Error making request to generate token'));
-        } else if (!tokens.access_token) {
-          reject(
-            new Error(
-              'Provided service account doest not have permission to generate access tokens',
-            ),
-          );
-        }
-        resolve(tokens.access_token);
-      }),
-    );
+  const token = await new Promise((resolve, reject) =>
+    jwt.authorize(async (error, tokens) => {
+      if (error) {
+        reject(new Error('Error making request to generate token'));
+      } else if (!tokens.access_token) {
+        reject(
+          new Error(
+            'Provided service account doest not have permission to generate access tokens',
+          ),
+        );
+      }
+      resolve(tokens.access_token);
+    }),
+  );
 
-    if (!token) {
-      return null;
-    }
-
-    const headers = {
-      Authorization: 'Bearer ' + token,
-    };
-
-    const res = await fetch(apiUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    return res.json();
-  } catch (e) {
-    console.log('Error:', e);
+  if (!token) {
+    return null;
   }
+
+  const headers = {
+    Authorization: 'Bearer ' + token,
+  };
+
+  const res = await fetch(apiUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  return res.json();
 }
 
 function transformData(data): Record<string, unknown> {
@@ -158,12 +164,8 @@ function transformData(data): Record<string, unknown> {
 async function createGoogleAnalyticsStatistic(
   data: Record<string, unknown>,
 ): Promise<void> {
-  try {
-    await webstatsSdk.createGoogleAnalyticsStatistic({
-      projectId: projectId as string,
-      data,
-    });
-  } catch (e) {
-    console.log('Error:', e);
-  }
+  await webstatsSdk.createGoogleAnalyticsStatistic({
+    projectId: projectId as string,
+    data,
+  });
 }

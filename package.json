@@ -17,6 +17,7 @@
     }
   },
   "dependencies": {
+    "@actions/core": "^1.2.6",
     "dotenv": "^8.2.0",
     "googleapis": "^67.1.1",
     "node-fetch": "^2.6.1",
