@@ -53,7 +53,7 @@ async function main(): Promise<void> {
 
     info('Posting Google Analytics data to Webstats');
     await createGoogleAnalyticsStatistic(transformedData);
-  } catch(e) {
+  } catch (e) {
     setFailed(e.message);
   }
 }
