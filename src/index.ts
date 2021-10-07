@@ -152,9 +152,16 @@ async function getGoogleAnalyticsData(): Promise<any> {
 function transformData(data): Record<string, unknown> {
   data.version = '1';
 
-  data?.reports[0]?.data?.rows.forEach((row) => {
+  const rows = data?.reports[0]?.data?.rows;
+
+  if (!rows) {
+    setFailed("Incorrect format");
+  }
+
+  rows.forEach((row) => {
     row.startDateTime = from.getTime() / 1000;
     row.endDateTime = to.getTime() / 1000;
+    row.createdAt = from.getTime() / 1000;
     row.dimension = 'day';
   });
 
@@ -165,7 +172,7 @@ async function createGoogleAnalyticsStatistic(
   data: Record<string, unknown>,
 ): Promise<void> {
   await webstatsSdk.createGoogleAnalyticsStatistic({
-    projectId: projectId as string,
+    projectId,
     data,
   });
 }
