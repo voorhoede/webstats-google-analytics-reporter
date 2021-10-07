@@ -155,7 +155,7 @@ function transformData(data): Record<string, unknown> {
   const rows = data?.reports[0]?.data?.rows;
 
   if (!rows) {
-    setFailed("Incorrect format");
+    setFailed('Incorrect format');
   }
 
   rows.forEach((row) => {
